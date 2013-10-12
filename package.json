@@ -1,0 +1,46 @@
+{
+    "name": "grunt-bintray-deploy",
+    "description": "A grunt task to automate deploying files to Bintray.com.",
+    "version": "0.0.0",
+    "homepage": "https://github.com/shayke/grunt-bintray-deploy",
+    "author": {
+        "name": "Shay Yaakov",
+        "email": "shayke@gmail.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/shayke/grunt-bintray-deploy.git"
+    },
+    "bugs": {
+        "url": "https://github.com/shayke/grunt-bintray-deploy/issues"
+    },
+    "licenses": [
+        {
+            "type": "MIT",
+            "url": "https://github.com/Shay/grunt-bintray-deploy/blob/master/LICENSE-MIT"
+        }
+    ],
+    "main": "Gruntfile.js",
+    "engines": {
+        "node": ">= 0.8.0"
+    },
+    "scripts": {
+        "test": "grunt test"
+    },
+    "devDependencies": {
+        "grunt-contrib-jshint": "~0.6.0",
+        "grunt-contrib-clean": "~0.4.0",
+        "grunt-contrib-nodeunit": "~0.2.0",
+        "grunt": "~0.4.1"
+    },
+    "peerDependencies": {
+        "grunt": "~0.4.1"
+    },
+    "keywords": [
+        "gruntplugin"
+    ],
+    "dependencies": {
+        "bintray": "~0.1.0",
+        "q": "~0.9.7"
+    }
+}
