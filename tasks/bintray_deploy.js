@@ -16,7 +16,7 @@ module.exports = function (grunt) {
         var done = this.async();
         var pkg = grunt.file.readJSON('package.json');
         var options = this.options({
-            pkgName: pkg.version,
+            pkgName: pkg.name,
             pkgVersion: pkg.version
         });
 
