@@ -1,6 +1,6 @@
 /*
  * grunt-bintray-deploy
- * https://github.com/shayke/bintray-deploy
+ * https://github.com/shayke/grunt-bintray-deploy
  *
  * Copyright (c) 2013 Shay Yaakov
  * Licensed under the MIT license.
@@ -13,7 +13,8 @@ module.exports = function (grunt) {
     var Q = require('q');
 
     grunt.registerMultiTask('bintrayDeploy', 'Deploy to Bintray', function () {
-        var done = this.async();
+        var finished = this.async();
+
         var pkg = grunt.file.readJSON('package.json');
         var options = this.options({
             pkgName: pkg.name,
@@ -27,32 +28,27 @@ module.exports = function (grunt) {
             repository: options.repo
         });
 
-        var queue = [];
+
+        var filesDestination = "https://bintray.com/" + bintray.endpointBase + "/" + options.pkgName + "/" + options.pkgVersion + "/files";
+        grunt.log.ok("Deploying files to '" + filesDestination + "'");
+
+        var promises = [];
         this.files.forEach(function (file) {
             file.src.forEach(function (srcPath) {
                 options.filePath = srcPath;
                 options.remotePath = file.dest.replace(/^\/|\/$/g, '');
-                queue.push(bintray.uploadPackage(options.pkgName, options.pkgVersion, options.filePath, options.remotePath));
+                var uploadFile = bintray.uploadPackage(options.pkgName, options.pkgVersion, options.filePath, options.remotePath);
+                promises.push(uploadFile.then(function () {
+                    grunt.log.ok("Successfully deployed '" + srcPath + "'");
+                }));
             });
         });
 
-        // TODO: Fix that with proper logging
-        Q.all(queue).then(function (ful) {
-            // All the results from Q.all are on the argument as an array
-            console.log('fulfilled', ful);
-        },function (rej) {
-
-            // The first rejected (error thrown) will be here only
-            console.log('rejected', rej);
-        }).fail(function (err) {
-
-                // If something whent wrong, then we catch it here, usually when there is no
-                // rejected callback.
-                console.log('fail', err);
-            }).fin(function () {
-
-                // Finally statemen; executed no matter of the above results
-                console.log('finally');
-            });
+        Q.all(promises).then(function() {
+            finished();
+        }).fail(function (error) {
+            grunt.log.error(error.data);
+            finished(false);
+        });
     });
 };
