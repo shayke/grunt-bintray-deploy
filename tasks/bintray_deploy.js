@@ -15,40 +15,88 @@ module.exports = function (grunt) {
     grunt.registerMultiTask('bintrayDeploy', 'Deploy to Bintray', function () {
         var finished = this.async();
 
-        var pkg = grunt.file.readJSON('package.json');
+        var projectPackage = grunt.file.readJSON('package.json');
         var options = this.options({
-            pkgName: pkg.name,
-            pkgVersion: pkg.version
+            user: null,
+            apikey: null,
+            pkg: {
+                repo: null,
+                userOrg: null,
+                name: null,
+                version: null,
+                desc: null,
+                licenses: null,
+                labels: null
+            }
         });
+
+        // These don't work when specifying directly inside pkg above
+        options.pkg.userOrg = options.pkg.userOrg || options.user;
+        options.pkg.name = options.pkg.name || projectPackage.name;
+        options.pkg.version = options.pkg.version || projectPackage.version;
+        options.pkg.desc = options.pkg.desc || 'Automatically created GruntJS package';
+        options.pkg.licenses = options.pkg.licenses || ['MIT'];
 
         var bintray = new Bintray({
-            username: options.username,
+            username: options.user,
             apikey: options.apikey,
-            organization: options.subject,
-            repository: options.repo
+            organization: options.pkg.userOrg,
+            repository: options.pkg.repo
         });
 
-
-        var filesDestination = "https://bintray.com/" + bintray.endpointBase + "/" + options.pkgName + "/" + options.pkgVersion + "/files";
-        grunt.log.ok("Deploying files to '" + filesDestination + "'");
-
-        var promises = [];
-        this.files.forEach(function (file) {
-            file.src.forEach(function (srcPath) {
-                options.filePath = srcPath;
-                options.remotePath = file.dest.replace(/^\/|\/$/g, '');
-                var uploadFile = bintray.uploadPackage(options.pkgName, options.pkgVersion, options.filePath, options.remotePath);
-                promises.push(uploadFile.then(function () {
-                    grunt.log.ok("Successfully deployed '" + srcPath + "'");
-                }));
+        function checkAndCreatePackage(name) {
+            var deferred = Q.defer();
+            bintray.getPackage(name).then(function(res) {
+                grunt.log.ok("Package '" + res.data.name + "' already exists.");
+                deferred.resolve(true);
+            }, function(res) {
+                if(res.code === 404) {
+                    bintray.createPackage(newPackage).then(function(res) {
+                        grunt.log.ok("Successfully created new package '" + res.data.name + "'.");
+                        deferred.resolve(true);
+                    }, function(error) {
+                        deferred.reject(new Error(error));
+                    });
+                }
             });
-        });
 
-        Q.all(promises).then(function() {
-            finished();
-        }).fail(function (error) {
-            grunt.log.error(error.data);
-            finished(false);
-        });
+            return deferred.promise;
+        }
+
+        var newPackage = {
+            name: options.pkg.name,
+            desc: options.pkg.desc,
+            licenses: options.pkg.licenses,
+            labels: options.pkg.labels
+        };
+
+        function uploadFiles(files) {
+            var filesDestination = "https://bintray.com/" + bintray.endpointBase + "/" + options.pkg.name + "/" + options.pkg.version + "/files";
+            grunt.log.ok("Deploying files to '" + filesDestination + "'");
+
+            var promises = [];
+            files.forEach(function (file) {
+                file.src.forEach(function (srcPath) {
+                    var remotePath = file.dest.replace(/^\/|\/$/g, '');
+                    promises.push(bintray.uploadPackage(options.pkg.name, options.pkg.version, srcPath, remotePath).then(function() {
+                        grunt.log.ok("Successfully deployed '" + srcPath + "'");
+                    }, function(error) {
+                        grunt.log.error("Failed deploying " + srcPath + ": " + error.data);
+                        finished(false);
+                    }));
+                });
+            });
+
+            return Q.all(promises);
+        }
+
+        var files = this.files;
+        checkAndCreatePackage(newPackage.name)
+            .then(function() { uploadFiles(files).then(function() { finished() }) })
+            .fail(function(err) {
+                grunt.log.error(err);
+                finished(false);
+            })
+            .done();
     });
 };
