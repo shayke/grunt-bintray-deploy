@@ -91,7 +91,7 @@ module.exports = function (grunt) {
                 });
             });
 
-            var result = Q();
+            var result = new Q();
             promises.forEach(function(f) {
                 result = result.then(f);
             });
