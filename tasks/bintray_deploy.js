@@ -41,7 +41,7 @@ module.exports = function (grunt) {
         var bintray = new Bintray({
             username: options.user,
             apikey: options.apikey,
-            baseUrl: options.baseUrl,
+            baseUrl: options.baseUrl || Bintray.apiBaseUrl,
             organization: options.pkg.userOrg,
             repository: options.pkg.repo
         });
@@ -80,16 +80,23 @@ module.exports = function (grunt) {
             files.forEach(function (file) {
                 file.src.forEach(function (srcPath) {
                     var remotePath = file.dest.replace(/^\/|\/$/g, '');
-                    promises.push(bintray.uploadPackage(options.pkg.name, options.pkg.version, srcPath, remotePath).then(function() {
-                        grunt.log.ok("Successfully deployed '" + srcPath + "'");
-                    }, function(error) {
-                        grunt.log.error("Failed deploying " + srcPath + " to remote path " + remotePath + ": " + error.data);
-                        finished(false);
-                    }));
+                    promises.push(function() {
+                        return bintray.uploadPackage(options.pkg.name, options.pkg.version, srcPath, remotePath).then(function(res) {
+                            grunt.log.ok("Successfully deployed '" + srcPath + "'");
+                        }, function(error) {
+                            grunt.log.error("Failed deploying " + srcPath + " to remote path " + remotePath + ": " + error.data);
+                            finished(false);
+                        });
+                    });
                 });
             });
 
-            return Q.all(promises);
+            var result = Q();
+            promises.forEach(function(f) {
+                result = result.then(f);
+            });
+
+            return result;
         }
 
         var files = this.files;
