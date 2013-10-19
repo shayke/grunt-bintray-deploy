@@ -1,0 +1,72 @@
+[
+    {
+        "request": {
+            "url": "^/packages/username/repo",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Basic dXNlcm5hbWU6YXBpa2V5"
+            },
+            "method": "POST"
+        },
+        "response": {
+            "status": 201,
+            "headers": {
+                "Content-Type": "application/json",
+                "X-RangeLimit-Total": 0,
+                "X-RateLimit-Limit": 300,
+                "X-RateLimit-Remaining": 250
+            },
+            "latency": 500,
+            "body": {
+                "name": "new-package",
+                "desc": "Automatically created GruntJS package",
+                "licenses": ["MIT"]
+            }
+        }
+    },
+    {
+        "request": {
+            "url": "^/packages/username/repo/new-package",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Basic dXNlcm5hbWU6YXBpa2V5"
+            },
+            "method": "GET"
+        },
+        "response": {
+            "status": 404,
+            "headers": {
+                "Content-Type": "application/json",
+                "X-RangeLimit-Total": 0,
+                "X-RateLimit-Limit": 300,
+                "X-RateLimit-Remaining": 250
+            },
+            "latency": 500
+        }
+    },
+    {
+        "request": {
+            "url": "^/packages/username/repo/grunt-bintray-deploy",
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": "Basic dXNlcm5hbWU6YXBpa2V5"
+            },
+            "method": "GET"
+        },
+        "response": {
+            "status": 200,
+            "headers": {
+                "Content-Type": "application/json",
+                "X-RangeLimit-Total": 0,
+                "X-RateLimit-Limit": 300,
+                "X-RateLimit-Remaining": 250
+            },
+            "latency": 500,
+            "body": {
+                "name": "grunt-bintray-deploy",
+                "desc": "great package!",
+                "licenses": ["MIT"]
+            }
+        }
+    }
+]

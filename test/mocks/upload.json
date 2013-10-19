@@ -1,0 +1,42 @@
+[
+    {
+        "request": {
+            "url": "^/content/username/repo/new-package/1.1.0/1.1.0/test.js",
+            "headers": {
+                "Content-Type": "multipart/form-data",
+                "Authorization": "Basic dXNlcm5hbWU6YXBpa2V5"
+            },
+            "method": "PUT"
+        },
+        "response": {
+            "status": 201,
+            "headers": {
+                "Content-Type": "application/json",
+                "X-RangeLimit-Total": 0,
+                "X-RateLimit-Limit": 300,
+                "X-RateLimit-Remaining": 250
+            },
+            "latency": 500
+        }
+    },
+    {
+        "request": {
+            "url": "^/content/username/repo/grunt-bintray-deploy/2.2.0/2.2.0/dir/test2.txt",
+            "headers": {
+                "Content-Type": "multipart/form-data",
+                "Authorization": "Basic dXNlcm5hbWU6YXBpa2V5"
+            },
+            "method": "PUT"
+        },
+        "response": {
+            "status": 201,
+            "headers": {
+                "Content-Type": "application/json",
+                "X-RangeLimit-Total": 0,
+                "X-RateLimit-Limit": 300,
+                "X-RateLimit-Remaining": 250
+            },
+            "latency": 500
+        }
+    }
+]

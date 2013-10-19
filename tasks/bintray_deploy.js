@@ -19,6 +19,7 @@ module.exports = function (grunt) {
         var options = this.options({
             user: null,
             apikey: null,
+            baseUrl: null,
             pkg: {
                 repo: null,
                 userOrg: null,
@@ -40,28 +41,10 @@ module.exports = function (grunt) {
         var bintray = new Bintray({
             username: options.user,
             apikey: options.apikey,
+            baseUrl: options.baseUrl,
             organization: options.pkg.userOrg,
             repository: options.pkg.repo
         });
-
-        function checkAndCreatePackage(name) {
-            var deferred = Q.defer();
-            bintray.getPackage(name).then(function(res) {
-                grunt.log.ok("Package '" + res.data.name + "' already exists.");
-                deferred.resolve(true);
-            }, function(res) {
-                if(res.code === 404) {
-                    bintray.createPackage(newPackage).then(function(res) {
-                        grunt.log.ok("Successfully created new package '" + res.data.name + "'.");
-                        deferred.resolve(true);
-                    }, function(error) {
-                        deferred.reject(new Error(error));
-                    });
-                }
-            });
-
-            return deferred.promise;
-        }
 
         var newPackage = {
             name: options.pkg.name,
@@ -69,6 +52,25 @@ module.exports = function (grunt) {
             licenses: options.pkg.licenses,
             labels: options.pkg.labels
         };
+
+        function checkAndCreatePackage(name) {
+            var deferred = Q.defer();
+            bintray.getPackage(name).then(function(res) {
+                grunt.log.ok("Package '" + res.data.name + "' already exists.");
+                deferred.resolve();
+            }, function(res) {
+                if(res.code === 404) {
+                    bintray.createPackage(newPackage).then(function(res) {
+                        grunt.log.ok("Successfully created new package '" + res.data.name + "'.");
+                        deferred.resolve();
+                    }, function(error) {
+                        deferred.reject(error.code + " - " + error.status);
+                    });
+                }
+            });
+
+            return deferred.promise;
+        }
 
         function uploadFiles(files) {
             var filesDestination = "https://bintray.com/" + bintray.endpointBase + "/" + options.pkg.name + "/" + options.pkg.version + "/files";
@@ -81,7 +83,7 @@ module.exports = function (grunt) {
                     promises.push(bintray.uploadPackage(options.pkg.name, options.pkg.version, srcPath, remotePath).then(function() {
                         grunt.log.ok("Successfully deployed '" + srcPath + "'");
                     }, function(error) {
-                        grunt.log.error("Failed deploying " + srcPath + ": " + error.data);
+                        grunt.log.error("Failed deploying " + srcPath + " to remote path " + remotePath + ": " + error.data);
                         finished(false);
                     }));
                 });
@@ -92,7 +94,7 @@ module.exports = function (grunt) {
 
         var files = this.files;
         checkAndCreatePackage(newPackage.name)
-            .then(function() { uploadFiles(files).then(function() { finished() }) })
+            .then(function() { uploadFiles(files).then(function() { finished(); }); })
             .fail(function(err) {
                 grunt.log.error(err);
                 finished(false);

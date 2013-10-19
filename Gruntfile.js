@@ -30,21 +30,50 @@ module.exports = function (grunt) {
 
         // Configuration to be run (and then tested).
         bintrayDeploy: {
-            default_options: {
+            package_creation: {
                 options: {
+                    user: "username",
+                    apikey: "apikey",
+                    baseUrl: "http://localhost:8882",
+                    pkg: {
+                        repo: "repo",
+                        name: "new-package",
+                        version: "1.1.0"
+                    }
                 },
-                files: {
-                    'tmp/default_options': ['test/fixtures/testing', 'test/fixtures/123']
-                }
+                files: [{
+                    expand: true,
+                    flatten: true,
+                    src: ["test/fixtures/test.js"],
+                    dest: "1.1.0",
+                    filter: "isFile"
+                }]
             },
-            custom_options: {
+            existing_package: {
                 options: {
-                    separator: ': ',
-                    punctuation: ' !!!'
+                    user: "username",
+                    apikey: "apikey",
+                    baseUrl: "http://localhost:8882",
+                    pkg: {
+                        repo: "repo",
+                        version: "2.2.0"
+                    }
                 },
-                files: {
-                    'tmp/custom_options': ['test/fixtures/testing', 'test/fixtures/123']
-                }
+                files: [{
+                    expand: true,
+                    flatten: true,
+                    src: ["test/fixtures/dir/test2.txt"],
+                    dest: "2.2.0/dir",
+                    filter: "isFile"
+                }]
+            }
+        },
+
+        stubby: {
+            bintray: {
+                files: [{
+                    src: [ 'test/mocks/*.json' ]
+                }]
             }
         },
 
@@ -62,10 +91,11 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-nodeunit');
+    grunt.loadNpmTasks('grunt-stubby');
 
     // Whenever the "test" task is run, first clean the "tmp" dir, then run this
     // plugin's task(s), then test the result.
-    grunt.registerTask('test', ['clean', 'bintrayDeploy', 'nodeunit']);
+    grunt.registerTask('test', ['clean', 'stubby', 'bintrayDeploy', 'nodeunit']);
 
     // By default, lint and run all tests.
     grunt.registerTask('default', ['jshint', 'test']);
