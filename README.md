@@ -1,6 +1,9 @@
-# grunt-bintray-deploy
+# Grunt Bintray Deploy
 
-> The best Grunt plugin ever.
+> This is a [grunt](https://github.com/gruntjs/grunt) task for uploading your project to [Bintray](https://bintray.com).
+Bintray is a free social service for easy OSS software packages distribution.
+Bintray offers developers the fastest way to publish and consume OSS software releases. Whether you are distributing software packages or downloading ones.
+Click [here](https://bintray.com/howbintrayworks) for more information
 
 ## Getting Started
 This plugin requires Grunt `~0.4.1`
@@ -17,76 +20,144 @@ Once the plugin has been installed, it may be enabled inside your Gruntfile with
 grunt.loadNpmTasks('grunt-bintray-deploy');
 ```
 
-## The "bintray_deploy" task
+## The "bintrayDeploy" task
 
 ### Overview
-In your project's Gruntfile, add a section named `bintray_deploy` to the data object passed into `grunt.initConfig()`.
+In your project's Gruntfile, add a section named `bintrayDeploy` to the data object passed into `grunt.initConfig()`.
 
 ```js
 grunt.initConfig({
-  bintray_deploy: {
-    options: {
-      // Task-specific options go here.
-    },
-    your_target: {
-      // Target-specific file lists and/or options go here.
-    },
+  bintrayDeploy: {
+    bintray: {
+      options: {
+        user: "bintray_user",
+        apikey: "bintray_api_key",
+        pkg: {
+          repo: "repo",
+        }
+      },
+      files: [{
+        expand: true,
+        flatten: true,
+        src: ["dist/*.js"],
+        dest: "<%= pkg.version %>",
+        filter: "isFile"
+      }]
+    }
   },
 })
 ```
 
 ### Options
 
-#### options.separator
+#### options.user
 Type: `String`
-Default value: `',  '`
 
-A string value that is used to do something with whatever.
+Your Bintray username, **mandatory**.
 
-#### options.punctuation
+#### options.apikey
 Type: `String`
-Default value: `'.'`
 
-A string value that is used to do something else with whatever else.
+Your Bintray API Key, used to communicate and publish files, **mandatory**.
+
+#### options.pkg.repo
+Type: `String`
+
+The repository in Bintray to upload files to, **mandatory**.
+
+#### options.pkg.userOrg
+Type: `String`
+Default value: `options.user`
+
+An optional different organization/user name to deploy the files to.
+
+#### options.pkg.name
+Type: `String`
+Default value: `The project's name from your package.json file`
+
+An optional different package name (created automatically if not existed in Bintray) to deploy the files to.
+
+#### options.pkg.version
+Type: `String`
+Default value: `The project's version from your package.json file`
+
+An optional different package version (created automatically if not existed in Bintray) to deploy the files to.
+
+#### options.pkg.desc
+Type: `String`
+Default value: `Automatically created GruntJS package`
+
+An optional package description in case of auto creation by the plugin.
+
+#### options.pkg.licenses
+Type: `Array of strings`
+Default value: `["MIT"]`
+
+An optional package licenses in case of auto creation by the plugin.
+
+#### options.pkg.labels
+Type: `Array of strings`
+
+An optional package labels in case of auto creation by the plugin.
 
 ### Usage Examples
 
 #### Default Options
-In this example, the default options are used to do something with whatever. So if the `testing` file has the content `Testing` and the `123` file had the content `1 2 3`, the generated result would be `Testing, 1 2 3.`
+In this example, the default options are used for publication, the package name and version will get auto created in Bintray with values from the project's package.json file.
+All *.js files located in the project's dist directory will get uploaded under the project's version directory.
 
 ```js
 grunt.initConfig({
-  bintray_deploy: {
-    options: {},
-    files: {
-      'dest/default_options': ['src/testing', 'src/123'],
-    },
+  bintrayDeploy: {
+    bintray: {
+      options: {
+        user: "bintray_user",
+        apikey: "bintray_api_key",
+        pkg: {
+          repo: "repo",
+        }
+      },
+      files: [{
+        expand: true,
+        flatten: true,
+        src: ["dist/*.js"],
+        dest: "<%= pkg.version %>",
+        filter: "isFile"
+      }]
+    }
   },
 })
 ```
 
 #### Custom Options
-In this example, custom options are used to do something else with whatever else. So if the `testing` file has the content `Testing` and the `123` file had the content `1 2 3`, the generated result in this case would be `Testing: 1 2 3 !!!`
+In this example, we are using custom properties and override the default ones.
 
 ```js
 grunt.initConfig({
   bintrayDeploy: {
-      shay: {
-          options: {
-              username: "<your_bintray_username>",
-              apikey: "<your_bintray_apikey>",
-              subject: "<organization name or username to deploy to>",
-              repo: "<repo name under the subject name>"
-          },
-          files: [{
-              expand: true,
-              src: 'dist/*.js', // Grab all the JS files from the dist folder
-              dest: '/', // We are deploying those file as flat to their version inside Bintray
-              filter: "isFile"
-              }
-          ]
-      }
-  }
+    bintray: {
+      options: {
+        user: "bintray_user",
+        apikey: "bintray_api_key",
+        pkg: {
+          repo: "repo",
+          userOrg: "someOrganization",
+          name: "packageName",
+          version: "pacakgeVersion",
+          desc: "A cool package description",
+          licenses: ["Apache2"],
+          labels: ["cool", "package"]
+        }
+      },
+      files: [{
+        expand: true,
+        flatten: true,
+        src: ["dist/*.js"],
+        dest: "<%= pkg.version %>",
+        filter: "isFile"
+      }]
+    }
+  },
 })
 ```
 
@@ -94,4 +165,4 @@ grunt.initConfig({
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
 
 ## Release History
-_(Nothing yet)_
+* 2013-10-19   v0.1.0   First release
