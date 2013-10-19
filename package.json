@@ -1,7 +1,7 @@
 {
   "name": "grunt-bintray-deploy",
   "description": "A grunt task to automate deploying files to Bintray.com.",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "homepage": "https://github.com/shayke/grunt-bintray-deploy",
   "author": {
     "name": "Shay Yaakov",
@@ -38,7 +38,10 @@
     "grunt": "~0.4.1"
   },
   "keywords": [
-    "gruntplugin"
+    "gruntplugin",
+    "bintray",
+    "deploy",
+    "distribute"
   ],
   "dependencies": {
     "bintray": "~0.1.0",
