@@ -100,6 +100,11 @@ Type: `Array of strings`
 
 An optional package labels in case of auto creation by the plugin.
 
+#### options.publish
+Type: Boolean
+
+Publish the files after uploading
+
 ### Usage Examples
 
 #### Default Options

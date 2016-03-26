@@ -101,7 +101,16 @@ module.exports = function (grunt) {
 
         var files = this.files;
         checkAndCreatePackage(newPackage.name)
-            .then(function() { uploadFiles(files).then(function() { finished(); }); })
+            .then(function() {
+                uploadFiles(files).then(function() { 
+                    if(options.publish) {
+                        bintray.publishPackage(options.pkg.name, options.pkg.version).then(function(){ finished(); }); 
+                    }
+                    else {
+                        finished();
+                    }
+                });
+             })
             .fail(function(err) {
                 grunt.log.error(err);
                 finished(false);
